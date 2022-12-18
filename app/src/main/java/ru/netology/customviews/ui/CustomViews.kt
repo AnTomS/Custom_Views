@@ -29,6 +29,7 @@ class CustomViews @JvmOverloads constructor(
     private var textSize = AndroidUtils.dp(context, 20).toFloat()
     private var lineWidth = AndroidUtils.dp(context, 5)
     private var colors = emptyList<Int>()
+    private var progress = 0F
 
     init {
         context.withStyledAttributes(attributeSet, R.styleable.CustomViews) {
@@ -88,14 +89,22 @@ class CustomViews @JvmOverloads constructor(
         if (data.isEmpty()) {
             return
         }
-
+        // определяем переменную стартовый угол поворота,
+        // он 90 градусов чтобы начинать отрисовку сверху
         var startAngle = -90F
+
+
+
         data.forEachIndexed { index, datum ->
-            val angle = datum * 360F
+            //расчитаем угол поворотам каждого элемента.
+            // умножим данные на 360 чтобы получить угол
+            val angle = (datum / data.sum())*360F
             paint.color = colors.getOrElse(index) { generateRandomColor() }
             canvas.drawArc(oval, startAngle, angle, false, paint)
             startAngle += angle
         }
+        paint.color = colors[0]
+        canvas.drawArc(oval, startAngle, 8F , false, paint)
 
         canvas.drawText(
             "%.2f%%".format(data.sum() * 100),

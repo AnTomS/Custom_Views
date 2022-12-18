@@ -8,11 +8,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<CustomViews>(R.id.customView).data = listOf(
-            0.25F,
-            0.25F,
-            0.25F,
-            0.25F,
+        val customView = findViewById<CustomViews>(R.id.customView)
+        val data = listOf(
+            500F,
+            500F,
+            500F,
+            500F,
         )
+        customView.data = data.map {
+            it / data.sum()
+        }
     }
 }
