@@ -7,6 +7,8 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.withStyledAttributes
+import ru.netology.customviews.R
 import ru.netology.customviews.utils.AndroidUtils
 import kotlin.math.min
 import kotlin.random.Random
@@ -24,6 +26,25 @@ class CustomViews @JvmOverloads constructor(
     defStyleRes,
 ) {
 
+    private var textSize = AndroidUtils.dp(context, 20).toFloat()
+    private var lineWidth = AndroidUtils.dp(context, 5)
+    private var colors = emptyList<Int>()
+
+    init {
+        context.withStyledAttributes(attributeSet, R.styleable.CustomViews) {
+            textSize = getDimension(R.styleable.CustomViews_textSize, textSize)
+            lineWidth = getDimension(R.styleable.CustomViews_lineWidth, lineWidth.toFloat()).toInt()
+
+            colors = listOf(
+                getColor(R.styleable.CustomViews_color1, generateRandomColor()),
+                getColor(R.styleable.CustomViews_color2, generateRandomColor()),
+                getColor(R.styleable.CustomViews_color3, generateRandomColor()),
+                getColor(R.styleable.CustomViews_color4, generateRandomColor()),
+            )
+        }
+    }
+
+
     var data: List<Float> = emptyList()
         set(value) {
             field = value
@@ -32,7 +53,7 @@ class CustomViews @JvmOverloads constructor(
     private var radius = 0F
     private var center = PointF()
     private var oval = RectF()
-    private val lineWidth = AndroidUtils.dp(context, 5)
+
     private val paint = Paint(
         Paint.ANTI_ALIAS_FLAG
     ).apply {
@@ -45,7 +66,7 @@ class CustomViews @JvmOverloads constructor(
     private val textPaint = Paint(
         Paint.ANTI_ALIAS_FLAG
     ).apply {
-        textSize = AndroidUtils.dp(context, 20).toFloat()
+        textSize = this@CustomViews.textSize
         strokeWidth = lineWidth.toFloat()
         style = Paint.Style.FILL
         textAlign = Paint.Align.CENTER
@@ -69,9 +90,9 @@ class CustomViews @JvmOverloads constructor(
         }
 
         var startAngle = -90F
-        data.forEach {
-            val angle = it * 360F
-            paint.color = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())
+        data.forEachIndexed { index, datum ->
+            val angle = datum * 360F
+            paint.color = colors.getOrElse(index) { generateRandomColor() }
             canvas.drawArc(oval, startAngle, angle, false, paint)
             startAngle += angle
         }
@@ -84,4 +105,6 @@ class CustomViews @JvmOverloads constructor(
         )
 
     }
+
+    private fun generateRandomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())
 }
