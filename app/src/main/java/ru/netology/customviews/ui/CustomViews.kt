@@ -96,6 +96,8 @@ class CustomViews @JvmOverloads constructor(
         // он 90 градусов чтобы начинать отрисовку сверху
         var startAngle = -90F
 
+        // задаём переменную для движения отрезков
+        val rotation = 360F * progress
 
 
         data.forEachIndexed { index, datum ->
@@ -103,24 +105,11 @@ class CustomViews @JvmOverloads constructor(
             // умножим данные на 360 чтобы получить угол
             val angle = (datum / data.sum()) * 360F
             paint.color = colors.getOrElse(index) { generateRandomColor() }
-            canvas.drawArc(oval, startAngle, angle * progress, false, paint)
+
+            // рисуем круг, указывая новые данные
+            canvas.drawArc(oval, startAngle + rotation, angle * progress, false, paint)
             startAngle += angle
         }
-//        paint.color = colors[0]
-//        canvas.drawArc(oval, startAngle, 8F, false, paint)
-//        val angleMax = progress * 360 + startAngle
-//
-//        for ((index, datum) in data.withIndex()) {
-//            val angle = 360F * datum
-//            val angleLast = min(angle, angleMax - startAngle )
-//            if (startAngle  > angleMax) return
-//
-//            paint.color = colors.getOrNull(index) ?: generateRandomColor()
-//            canvas.drawArc(oval, startAngle, angle * progress, false, paint)
-//            startAngle  += angle
-//        }
-//        paint.color = colors.first()
-//        canvas.drawCircle(center.x, center.y - radius, 1F, paint)
 
         canvas.drawText(
             "%.2f%%".format(data.sum() * 100),
@@ -143,8 +132,7 @@ class CustomViews @JvmOverloads constructor(
                 progress = anim.animatedValue as Float
                 invalidate()
             }
-            startDelay = 500
-            duration = 500
+            duration = 3_000
             interpolator = LinearInterpolator()
         }.also {
             it.start()
