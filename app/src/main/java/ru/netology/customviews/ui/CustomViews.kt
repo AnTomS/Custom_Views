@@ -143,7 +143,7 @@ class CustomViews @JvmOverloads constructor(
                 progress = anim.animatedValue as Float
                 invalidate()
             }
-            startDelay= 500
+            startDelay = 500
             duration = 500
             interpolator = LinearInterpolator()
         }.also {
