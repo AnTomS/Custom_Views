@@ -2,6 +2,9 @@ package ru.netology.customviews
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.TextView
 import ru.netology.customviews.ui.CustomViews
 
 class MainActivity : AppCompatActivity() {
@@ -19,4 +22,5 @@ class MainActivity : AppCompatActivity() {
             it / data.sum()
         }
     }
+
 }
