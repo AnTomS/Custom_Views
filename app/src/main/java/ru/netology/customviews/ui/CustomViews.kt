@@ -1,5 +1,6 @@
 package ru.netology.customviews.ui
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -7,6 +8,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.core.content.withStyledAttributes
 import ru.netology.customviews.R
 import ru.netology.customviews.utils.AndroidUtils
@@ -30,6 +32,7 @@ class CustomViews @JvmOverloads constructor(
     private var lineWidth = AndroidUtils.dp(context, 5)
     private var colors = emptyList<Int>()
     private var progress = 0F
+    private var valueAnimator: ValueAnimator? = null
 
     init {
         context.withStyledAttributes(attributeSet, R.styleable.CustomViews) {
@@ -49,7 +52,7 @@ class CustomViews @JvmOverloads constructor(
     var data: List<Float> = emptyList()
         set(value) {
             field = value
-            invalidate()
+            update()
         }
     private var radius = 0F
     private var center = PointF()
@@ -98,13 +101,26 @@ class CustomViews @JvmOverloads constructor(
         data.forEachIndexed { index, datum ->
             //расчитаем угол поворотам каждого элемента.
             // умножим данные на 360 чтобы получить угол
-            val angle = (datum / data.sum())*360F
+            val angle = (datum / data.sum()) * 360F
             paint.color = colors.getOrElse(index) { generateRandomColor() }
-            canvas.drawArc(oval, startAngle, angle, false, paint)
+            canvas.drawArc(oval, startAngle, angle * progress, false, paint)
             startAngle += angle
         }
-        paint.color = colors[0]
-        canvas.drawArc(oval, startAngle, 8F , false, paint)
+//        paint.color = colors[0]
+//        canvas.drawArc(oval, startAngle, 8F, false, paint)
+//        val angleMax = progress * 360 + startAngle
+//
+//        for ((index, datum) in data.withIndex()) {
+//            val angle = 360F * datum
+//            val angleLast = min(angle, angleMax - startAngle )
+//            if (startAngle  > angleMax) return
+//
+//            paint.color = colors.getOrNull(index) ?: generateRandomColor()
+//            canvas.drawArc(oval, startAngle, angle * progress, false, paint)
+//            startAngle  += angle
+//        }
+//        paint.color = colors.first()
+//        canvas.drawCircle(center.x, center.y - radius, 1F, paint)
 
         canvas.drawText(
             "%.2f%%".format(data.sum() * 100),
@@ -114,6 +130,27 @@ class CustomViews @JvmOverloads constructor(
         )
 
     }
+
+    private fun update() {
+        valueAnimator?.let {
+            it.removeAllListeners()
+            it.cancel()
+        }
+        progress = 0F
+
+        valueAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            addUpdateListener { anim ->
+                progress = anim.animatedValue as Float
+                invalidate()
+            }
+            startDelay= 500
+            duration = 500
+            interpolator = LinearInterpolator()
+        }.also {
+            it.start()
+        }
+    }
+
 
     private fun generateRandomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())
 }
